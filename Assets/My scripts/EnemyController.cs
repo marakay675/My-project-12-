@@ -4,10 +4,20 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    [SerializeField] private float _moveSpeed = 2.5f;
+    [SerializeField] private float _moveSpeed = 4f;
+    private Transform _target;
 
-    void Update()
+    public void InitializeTarget(Transform target)
     {
-        transform.Translate(Vector3.forward * _moveSpeed * Time.deltaTime);
+        _target = target;
+    }
+
+    private void Update()
+    {
+        Vector3 direction = (_target.position - transform.position).normalized;
+
+        transform.LookAt(_target);
+
+        transform.Translate(direction * _moveSpeed * Time.deltaTime, Space.World);
     }
 }
