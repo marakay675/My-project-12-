@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [SerializeField] private GameObject _prefab;
     [SerializeField] private bool _canSpawn = true;
-    [SerializeField] private Transform _targetForMyEnemies;
+    [SerializeField] private Transform[] _targetsForMyEnemies;
+    [SerializeField] private Transform[] _spawnPoints;
+    [SerializeField] private EnemyMover[] _enemyTypes;
 
     private void Start()
     {
@@ -15,12 +16,19 @@ public class EnemySpawner : MonoBehaviour
 
     private IEnumerator CoroutineSpawn()
     {
+
         while (_canSpawn == true)
         {
-           GameObject newEnemy = Instantiate(_prefab, transform.position, Quaternion.LookRotation(Vector3.right));
-            EnemyController controller = newEnemy.GetComponent<EnemyController>();
+        int randomIndex = Random.Range(0, _spawnPoints.Length);
 
-            controller.InitializeTarget(_targetForMyEnemies);
+            Transform selectedSpawnPoint = _spawnPoints[randomIndex];
+            Transform selectedTarget = _targetsForMyEnemies[randomIndex];
+            EnemyMover selectedEnemyType = _enemyTypes[randomIndex];
+
+            GameObject newEnemy = Instantiate(selectedEnemyType.gameObject, selectedSpawnPoint.position, Quaternion.LookRotation(Vector3.right));
+            EnemyMover controller = newEnemy.AddComponent<EnemyMover>();
+
+            controller.InitializeTarget(selectedTarget);
 
             yield return new WaitForSeconds(2);
         }

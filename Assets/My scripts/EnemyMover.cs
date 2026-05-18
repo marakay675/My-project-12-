@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyController : MonoBehaviour
+public class EnemyMover : MonoBehaviour
 {
     [SerializeField] private float _moveSpeed = 4f;
     private Transform _target;

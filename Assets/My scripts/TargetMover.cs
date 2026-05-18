@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TargetController : MonoBehaviour
+public class TargetMover : MonoBehaviour
 {
     [SerializeField] private float _moveSpeed = 6;
     [SerializeField] private Transform[] _wayPoints;
