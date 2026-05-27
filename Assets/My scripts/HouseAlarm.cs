@@ -6,41 +6,59 @@ using UnityEngine;
 public class HouseAlarm : MonoBehaviour
 {
     [SerializeField] private AudioSource _alarm;
+    [SerializeField] private BanditDetector detector;
     [SerializeField] float _speed = 0.3f;
 
-    private bool _banditHasEntered = false;
+    Coroutine _fadeCoroutine;
 
-    private void Update()
+    private void OnBanditEntered()
     {
-        if (_banditHasEntered == true)
-        {
-            float targetVolume = 1f;
+        float targetVolume = 1f;
 
-            _alarm.volume = Mathf.MoveTowards(_alarm.volume, targetVolume, _speed * Time.deltaTime);
-        }
-
-        if (_banditHasEntered == false)
-        {
-            float targetVolume = 0f;
-            _alarm.volume = Mathf.MoveTowards(_alarm.volume, targetVolume, _speed * Time.deltaTime);
-
-            if (_alarm.volume == targetVolume)
-                _alarm.Stop();
-        }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.tag == "Bandit")
-        {
+        if (_alarm.isPlaying == false)
             _alarm.Play();
-            _banditHasEntered = true;
-        }
+
+        StartFade(targetVolume);
     }
 
-    private void OnTriggerExit(Collider other)
+    private void OnBanditExited()
     {
-        if (other.tag == "Bandit")
-            _banditHasEntered = false;
+        float targetVolume = 0f;
+
+        StartFade(targetVolume);
+    }
+
+    private IEnumerator FadeRoutine(float targetVolume)
+    {
+        float minVolume = 0f;
+
+        while (_alarm.volume != targetVolume)
+        {
+        _alarm.volume = Mathf.MoveTowards(_alarm.volume, targetVolume, _speed * Time.deltaTime);
+        yield return null;
+        }
+
+        if (targetVolume == minVolume)
+            _alarm.Stop();
+    }
+
+    private void StartFade(float targetVolume)
+    {
+        if (_fadeCoroutine != null)
+            StopCoroutine(_fadeCoroutine);
+
+        _fadeCoroutine = StartCoroutine(FadeRoutine(targetVolume));
+    }
+
+    private void OnEnable()
+    {
+        detector.HasEntered += OnBanditEntered;
+        detector.HasExited += OnBanditExited;
+    }
+
+    private void OnDisable()
+    {
+        detector.HasEntered -= OnBanditEntered;
+        detector.HasExited -= OnBanditExited;
     }
 }
